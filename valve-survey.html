@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Valve Shop Inventory Survey</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f3ef;
+    --surface: #ffffff;
+    --border: #ddd9d0;
+    --accent: #e8621a;
+    --accent2: #f5a623;
+    --text: #1a1a1a;
+    --muted: #777;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    padding: 60px 20px;
+  }
+
+  .noise {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    opacity: 0.4;
+  }
+
+  .container {
+    max-width: 640px;
+    margin: 0 auto;
+    position: relative; z-index: 1;
+  }
+
+  .header {
+    margin-bottom: 56px;
+  }
+
+  .tag {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .tag::before {
+    content: '';
+    display: block;
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 8vw, 72px);
+    line-height: 0.95;
+    letter-spacing: 0.02em;
+    color: #1a1a1a;
+    margin-bottom: 20px;
+  }
+
+  h1 span {
+    color: var(--accent);
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.7;
+    max-width: 480px;
+  }
+
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent) 0%, transparent 60%);
+    margin: 40px 0;
+  }
+
+  .form-group {
+    margin-bottom: 40px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .form-group:nth-child(1) { animation-delay: 0.05s; }
+  .form-group:nth-child(2) { animation-delay: 0.1s; }
+  .form-group:nth-child(3) { animation-delay: 0.15s; }
+  .form-group:nth-child(4) { animation-delay: 0.2s; }
+  .form-group:nth-child(5) { animation-delay: 0.25s; }
+  .form-group:nth-child(6) { animation-delay: 0.3s; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .q-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+
+  label {
+    display: block;
+    font-size: 17px;
+    font-weight: 400;
+    color: var(--text);
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    background: var(--surface);
+  }
+
+  .option:hover {
+    border-color: var(--accent);
+    background: rgba(232, 98, 26, 0.06);
+  }
+
+  .option input[type="radio"],
+  .option input[type="checkbox"] {
+    appearance: none;
+    width: 18px; height: 18px;
+    border: 1px solid var(--muted);
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: all 0.15s;
+    position: relative;
+  }
+
+  .option input[type="checkbox"] {
+    border-radius: 4px;
+  }
+
+  .option input[type="radio"]:checked,
+  .option input[type="checkbox"]:checked {
+    border-color: var(--accent);
+    background: var(--accent);
+  }
+
+  .option input[type="radio"]:checked::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: white;
+  }
+
+  .option input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 11px;
+    color: white;
+    font-weight: 700;
+  }
+
+  .option span {
+    font-size: 14px;
+    color: var(--text);
+  }
+
+  textarea, input[type="text"], input[type="email"] {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 18px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    resize: vertical;
+    transition: border-color 0.15s;
+    outline: none;
+  }
+
+  textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
+    border-color: var(--accent);
+  }
+
+  textarea { min-height: 100px; }
+
+  .contact-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  @media (max-width: 480px) {
+    .contact-row { grid-template-columns: 1fr; }
+  }
+
+  .input-label {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .submit-btn {
+    margin-top: 48px;
+    width: 100%;
+    padding: 18px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .submit-btn:hover {
+    background: var(--accent2);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 32px rgba(232, 98, 26, 0.3);
+  }
+
+  .submit-btn:active {
+    transform: translateY(0);
+  }
+
+  .footer-note {
+    margin-top: 24px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  .success {
+    display: none;
+    text-align: center;
+    padding: 60px 0;
+  }
+
+  .success.show { display: block; }
+
+  .success-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+  }
+
+  .success h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 40px;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  .success p {
+    color: var(--muted);
+    font-size: 15px;
+  }
+
+  .form-wrap { transition: opacity 0.3s; }
+  .form-wrap.hidden { opacity: 0; pointer-events: none; }
+</style>
+</head>
+<body>
+<div class="noise"></div>
+<div class="container">
+
+  <div class="header">
+    <div class="tag">3 minutes · 8 questions</div>
+    <h1>How Does Your<br>Shop Manage<br><span>Inventory?</span></h1>
+    <p class="subtitle">I've built an inventory management system already used by small valve manufacturers in China. It works like a chat — from your phone, warehouse floor, or office, any time. Just type what happened:<br><br><em style="color:var(--accent);">"receive 50 units of 2-inch ball valve"</em><br><em style="color:var(--accent);">"ship out 10 gate valves for order #204"</em><br><em style="color:var(--accent);">"how many DN50 valves do we have left?"</em><br><br>No forms. No spreadsheets. No training required. If you can send a text message, you can use it.<br><br>Now I'm exploring whether a US version would be useful. No sales pitch — just 6 quick questions.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="form-wrap" id="formWrap">
+
+    <div class="form-group">
+      <div class="q-num">Q 01</div>
+      <label>How does your team currently track valve inventory?</label>
+      <div class="options">
+        <label class="option"><input type="radio" name="q1" value="excel"> <span>Excel / Google Sheets</span></label>
+        <label class="option"><input type="radio" name="q1" value="erp"> <span>ERP or inventory software (e.g. Fishbowl, inFlow)</span></label>
+        <label class="option"><input type="radio" name="q1" value="paper"> <span>Paper / whiteboard</span></label>
+        <label class="option"><input type="radio" name="q1" value="memory"> <span>Mostly from memory / informal</span></label>
+        <label class="option"><input type="radio" name="q1" value="other"> <span>Other</span></label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="q-num">Q 02</div>
+      <label>What's your biggest inventory headache right now?</label>
+      <div class="options">
+        <label class="option"><input type="checkbox" name="q2" value="shortage"> <span>Running out of stock unexpectedly</span></label>
+        <label class="option"><input type="checkbox" name="q2" value="overstock"> <span>Too much slow-moving inventory</span></label>
+        <label class="option"><input type="checkbox" name="q2" value="accuracy"> <span>Inaccurate counts / hard to know what's on hand</span></label>
+        <label class="option"><input type="checkbox" name="q2" value="quote"> <span>Slow quoting because I don't know what's available</span></label>
+        <label class="option"><input type="checkbox" name="q2" value="manual"> <span>Too much manual data entry</span></label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="q-num">Q 03</div>
+      <label>Roughly how many SKUs (part numbers) do you manage?</label>
+      <div class="options">
+        <label class="option"><input type="radio" name="q3" value="<50"> <span>Under 50</span></label>
+        <label class="option"><input type="radio" name="q3" value="50-200"> <span>50 – 200</span></label>
+        <label class="option"><input type="radio" name="q3" value="200-500"> <span>200 – 500</span></label>
+        <label class="option"><input type="radio" name="q3" value="500+"> <span>500+</span></label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="q-num">Q 04</div>
+      <label>Have you tried any inventory or ERP software before?</label>
+      <div class="options">
+        <label class="option"><input type="radio" name="q4" value="yes_keep"> <span>Yes, and we still use it</span></label>
+        <label class="option"><input type="radio" name="q4" value="yes_stop"> <span>Yes, but we stopped — too complex or too expensive</span></label>
+        <label class="option"><input type="radio" name="q4" value="no_tried"> <span>No, never found one that fit</span></label>
+        <label class="option"><input type="radio" name="q4" value="no_need"> <span>No, haven't felt the need</span></label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="q-num">Q 05</div>
+      <label>How many people work at your shop?</label>
+      <div class="options">
+        <label class="option"><input type="radio" name="q5" value="1-5"> <span>1 – 5</span></label>
+        <label class="option"><input type="radio" name="q5" value="6-15"> <span>6 – 15</span></label>
+        <label class="option"><input type="radio" name="q5" value="16-50"> <span>16 – 50</span></label>
+        <label class="option"><input type="radio" name="q5" value="50+"> <span>50+</span></label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="q-num">Q 06</div>
+      <label>Who's responsible for managing inventory day-to-day?</label>
+      <div class="options">
+        <label class="option"><input type="radio" name="q6" value="owner"> <span>The owner / I do it myself</span></label>
+        <label class="option"><input type="radio" name="q6" value="warehouse"> <span>A dedicated warehouse or inventory person</span></label>
+        <label class="option"><input type="radio" name="q6" value="shared"> <span>Multiple people, no one specific</span></label>
+        <label class="option"><input type="radio" name="q6" value="nobody"> <span>No one really — it's informal</span></label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="q-num">Q 07</div>
+      <label>Would you try a free tool built specifically for valve shops — where you just type or message what you need in plain English?</label>
+      <div class="options">
+        <label class="option"><input type="radio" name="q7" value="yes"> <span>Yes, I'd try it</span></label>
+        <label class="option"><input type="radio" name="q7" value="maybe"> <span>Maybe — depends on how it works</span></label>
+        <label class="option"><input type="radio" name="q7" value="no"> <span>Probably not</span></label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="q-num">Q 08</div>
+      <label>Anything else you'd want a tool like this to do? <span style="color:var(--muted); font-size:13px;">(optional)</span></label>
+      <textarea name="q8" placeholder="e.g. purchase order tracking, low stock alerts, supplier contacts..."></textarea>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="form-group">
+      <label>Your name & email <span style="color:var(--muted); font-size:13px;">(optional — only if you'd like a follow-up)</span></label>
+      <div class="contact-row">
+        <div>
+          <span class="input-label">Name</span>
+          <input type="text" name="name" placeholder="John Smith">
+        </div>
+        <div>
+          <span class="input-label">Email</span>
+          <input type="email" name="email" placeholder="john@valveshop.com">
+        </div>
+      </div>
+    </div>
+
+    <button class="submit-btn" onclick="handleSubmit()">SUBMIT SURVEY →</button>
+
+    <p class="footer-note">Takes about 2 minutes. No spam, ever.<br>Built by Yanze — I run a valve inventory system in China and I'm exploring whether the same tool would help US shops.</p>
+
+  </div>
+
+  <div class="success" id="successMsg">
+    <div class="success-icon">⚙️</div>
+    <h2>Thanks!</h2>
+    <p>Your answers are genuinely helpful.<br>If you left an email, I'll be in touch soon.</p>
+  </div>
+
+</div>
+
+<script>
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzllH3-8ozevtkc8BfnVAQkdd7Q8P60-Gm06S7KHBkQKOsRXVa95TavnDfW9ig1vpGRBQ/exec";
+
+function getChecked(name) {
+  return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`))
+    .map(i => i.value).join(", ");
+}
+
+async function handleSubmit() {
+  const btn = document.querySelector('.submit-btn');
+  btn.textContent = 'SUBMITTING...';
+  btn.disabled = true;
+
+  const payload = {
+    q1: getChecked('q1'),
+    q2: getChecked('q2'),
+    q3: getChecked('q3'),
+    q4: getChecked('q4'),
+    q5_headcount: getChecked('q5'),
+    q6_who_manages: getChecked('q6'),
+    q7_would_try: getChecked('q7'),
+    q8_open: document.querySelector('textarea[name="q8"]').value,
+    name: document.querySelector('input[name="name"]').value,
+    email: document.querySelector('input[name="email"]').value,
+  };
+
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+  } catch (err) {
+    console.error('Submission error:', err);
+  }
+
+  const wrap = document.getElementById('formWrap');
+  const success = document.getElementById('successMsg');
+  wrap.classList.add('hidden');
+  setTimeout(() => {
+    wrap.style.display = 'none';
+    success.classList.add('show');
+  }, 300);
+}
+
+// Highlight selected option
+document.querySelectorAll('.option input').forEach(input => {
+  input.addEventListener('change', () => {
+    const name = input.name;
+    if (input.type === 'radio') {
+      document.querySelectorAll(`input[name="${name}"]`).forEach(i => {
+        i.closest('.option').style.borderColor = '';
+        i.closest('.option').style.background = '';
+      });
+    }
+    if (input.checked) {
+      input.closest('.option').style.borderColor = 'var(--accent)';
+      input.closest('.option').style.background = 'rgba(232,98,26,0.08)';
+    } else {
+      input.closest('.option').style.borderColor = '';
+      input.closest('.option').style.background = '';
+    }
+  });
+});
+</script>
+</body>
+</html>
